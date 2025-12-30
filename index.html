@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Time Progress</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#262626">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="icon" type="image/png" href="saturn.png">
+
+  <!-- iPhone / iPad icons -->
+<link rel="apple-touch-icon" href="saturn.png">
+
+<!-- Optional for Safari Pinned Tab -->
+<link rel="mask-icon" href="saturn.png" color="#262626">
+
+  <style>
+    @font-face {
+      font-family: 'AFCamberwell';
+      src: url('AFCamberwell One Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #262626;
+    }
+
+    body {
+      font-family: 'AFCamberwell', sans-serif;
+      color: #e5e7eb;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 44px 42px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 2px;
+      opacity: 0.85;
+      margin-bottom: 28px;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-bottom: 80px;
+      padding-top:30px;
+      padding-left:30px;
+      padding-right:30px;
+    }
+
+    .section {
+      width: 100%;
+    }
+
+    .title {
+      font-size: 20px;
+      letter-spacing: 4px;
+      margin-bottom: 12px;
+    }
+
+    .day   { color: #38bdf8; }
+    .month { color: #9ae27b; }
+    .year  { color: #fb8b5e; }
+    .life  { color: #c084fc; }
+
+    .bar-wrap {
+      position: relative;
+      height: 14px;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: visible;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .bar-fill.day   { background: #38bdf8; }
+    .bar-fill.month { background: #9ae27b; }
+    .bar-fill.year  { background: #fb8b5e; }
+    .bar-fill.life  { background: #c084fc; }
+
+    /* PERCENT NUMBER (VISIBLE FIX) */
+    .pct {
+      position: absolute;
+      top: -25px;
+      font-size: 13px;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .pct.day   { color: #38bdf8; }
+    .pct.month { color: #9ae27b; }
+    .pct.year  { color: #fb8b5e; }
+    .pct.life  { color: #c084fc; }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      letter-spacing: 2px;
+      opacity: 0.6;
+      margin-top: 12px;
+    }
+
+    .footer {
+      position: fixed;                 /* FIXIERT am Bildschirm */
+      bottom: 0;
+      left: 0;
+      width: 100%;                     /* volle Breite */
+      padding: 0.5rem 0 calc(1rem + env(safe-area-inset-bottom));
+      text-align: center;
+
+      font-size: 0.65rem;
+      color: #888;
+      opacity: 0.6;
+
+      background: #262626;; /* leichtes Overlay, kann auf darkmode angepasst werden */
+      pointer-events: none;             /* weiterhin nicht klickbar */
+      
+      z-index: 1000;                     /* immer über allen Exercises */
+    }
+
+    .powered-items span + span::before {
+      content: "|";   /* Trennpunkt */
+      margin: 0 0.4rem;
+      color: #acacac;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">202026</div>
+
+  <div class="content">
+
+    <!-- DAY -->
+    <div class="section">
+      <div class="title day">DAY</div>
+      <div class="bar-wrap">
+        <div class="bar-fill day" id="dayBar"></div>
+        <div class="pct day" id="dayPct">0%</div>
+      </div>
+      <div class="meta">
+        <span id="dayName"></span>
+        <span id="timeNow"></span>
+      </div>
+    </div>
+
+    <!-- MONTH -->
+    <div class="section">
+      <div class="title month">MONTH</div>
+      <div class="bar-wrap">
+        <div class="bar-fill month" id="monthBar"></div>
+        <div class="pct month" id="monthPct">0%</div>
+      </div>
+      <div class="meta">
+        <span id="monthName"></span>
+        <span id="monthDay"></span>
+      </div>
+    </div>
+
+    <!-- YEAR -->
+    <div class="section">
+      <div class="title year">YEAR</div>
+      <div class="bar-wrap">
+        <div class="bar-fill year" id="yearBar"></div>
+        <div class="pct year" id="yearPct">0%</div>
+      </div>
+      <div class="meta">
+        <span id="yearNum"></span>
+        <span></span>
+      </div>
+    </div>
+
+    <!-- LIFE -->
+    <div class="section">
+      <div class="title life">LIFE</div>
+      <div class="bar-wrap">
+        <div class="bar-fill life" id="lifeBar"></div>
+        <div class="pct life" id="lifePct">0%</div>
+      </div>
+      <div class="meta">
+        <span id="ageExact"></span>
+        <span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    
+    <span class="powered-items">
+      <span>gpt-5.2</span>
+      <span>git</span>
+      <span>droam</span>
+    </span>
+  </footer>
+</div>
+
+<script>
+  const BIRTHDATE = new Date("2006-06-19"); // CHANGE THIS
+  const LIFE_EXPECTANCY_YEARS = 90;
+
+  function update() {
+    const now = new Date();
+
+    // DAY
+    const startDay = new Date(now);
+    startDay.setHours(0,0,0,0);
+    setBar("day", (now - startDay) / 86400000 * 100);
+
+    // MONTH
+    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    setBar("month", (now - startMonth) / (endMonth - startMonth) * 100);
+
+    // YEAR
+    const startYear = new Date(now.getFullYear(), 0, 1);
+    const endYear = new Date(now.getFullYear() + 1, 0, 1);
+    setBar("year", (now - startYear) / (endYear - startYear) * 100);
+
+    // LIFE %
+    const lifeMs = LIFE_EXPECTANCY_YEARS * 365.2422 * 86400000;
+    setBar("life", (now - BIRTHDATE) / lifeMs * 100);
+
+    // META TEXT
+    document.getElementById("dayName").textContent =
+      now.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+
+    document.getElementById("timeNow").textContent =
+      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    document.getElementById("monthName").textContent =
+      now.toLocaleDateString(undefined, { month: "long" }).toUpperCase();
+
+    document.getElementById("monthDay").textContent = now.getDate();
+    document.getElementById("yearNum").textContent = now.getFullYear();
+
+    document.getElementById("ageExact").textContent = getExactAge(BIRTHDATE, now);
+  }
+
+  function setBar(id, value) {
+    const pct = Math.min(Math.max(value, 0), 100);
+    const rounded = Math.round(pct);
+
+    const bar = document.getElementById(id + "Bar");
+    const text = document.getElementById(id + "Pct");
+
+    bar.style.width = pct + "%";
+    text.style.left = pct + "%";
+    text.textContent = rounded + "%";
+  }
+
+  function getExactAge(birth, now) {
+    let years = now.getFullYear() - birth.getFullYear();
+    let months = now.getMonth() - birth.getMonth();
+    let days = now.getDate() - birth.getDate();
+
+    if (days < 0) {
+      months--;
+      const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    return `${years}Y ${months}M ${days}D`;
+  }
+
+  update();
+  setInterval(update, 60000);
+</script>
+
+</body>
+</html>
