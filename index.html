@@ -1,299 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Time Progress</title>
+<meta charset="UTF-8" />
+<title>202026</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#262626">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#262626">
 
-  <link rel="icon" type="image/png" href="saturn.png">
+<!-- PWA / iPhone Icons -->
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="mask-icon" href="favicon.png" color="#11DA2D">
 
-  <!-- iPhone / iPad icons -->
-<link rel="apple-touch-icon" href="saturn.png">
+<style>
+@font-face {
+  font-family: "Bipolar";
+  src: url("bipolar.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
 
-<!-- Optional for Safari Pinned Tab -->
-<link rel="mask-icon" href="saturn.png" color="#262626">
+/* ---------------- GLOBAL ---------------- */
+*, *::before, *::after { box-sizing: border-box; }
 
-  <style>
-    @font-face {
-      font-family: 'AFCamberwell';
-      src: url('AFCamberwell One Regular.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Bipolar", system-ui, sans-serif;
+  color: #11DA2D;
 
+  /* Background image */
+  background: url("background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+}
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #262626;
-    }
+/* Dark overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: -1;
+}
 
-    body {
-      font-family: 'AFCamberwell', sans-serif;
-      color: #e5e7eb;
-    }
+.app {
+  min-height: 100vh;
+  padding: 44px 42px 120px;
+}
 
-    .app {
-      min-height: 100vh;
-      padding: 44px 42px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-    }
+/* HEADER */
+.header {
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 2px;
+  margin-bottom: 50px;
+  font-weight: bold;
+}
 
-    .header {
-      text-align: center;
-      font-size: 28px;
-      letter-spacing: 2px;
-      opacity: 0.85;
-      margin-bottom: 28px;
-    }
+/* SECTIONS */
+.section { margin-bottom: 60px; }
+.title {
+  font-size: 20px;
+  letter-spacing: 4px;
+  margin-bottom: 15px;
+}
 
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding-bottom: 80px;
-      padding-top:30px;
-      padding-left:30px;
-      padding-right:30px;
-    }
+/* BARS */
+.bar-wrap {
+  height: 14px;
+  background: rgba(255,255,255,0.15); /* transparent */
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+.bar-fill { height: 100%; border-radius: 8px 0 0 8px; }
+.day, .month, .year, .life { background: #11DA2D; }
 
-    .section {
-      width: 100%;
-    }
+/* META */
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  opacity: 0.8;
+}
 
-    .title {
-      font-size: 20px;
-      letter-spacing: 4px;
-      margin-bottom: 12px;
-    }
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  text-transform: capitalize;
+}
+.modal-content {
+  background: rgba(30,30,30,0.8);
+  width: 90%;
+  max-width: 420px;
+  max-height: 50vh;
+  padding: 22px;
+  border-radius: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  white-space: normal;
+}
+.modal h2 { margin-top:0; letter-spacing: 4px; }
 
-    .day   { color: #38bdf8; }
-    .month { color: #9ae27b; }
-    .year  { color: #fb8b5e; }
-    .life  { color: #c084fc; }
+/* TASKS */
+.task {
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  word-wrap: break-word;
+  white-space: normal;
+}
+.task.done { text-decoration: line-through; opacity: 0.35; }
+.task-actions { float: right; color: #777; cursor: pointer; }
 
-    .bar-wrap {
-      position: relative;
-      height: 14px;
-      background: #ffffff;
-      border-radius: 8px;
-      overflow: visible;
-    }
+input, button {
+  font-family: "Bipolar", system-ui, sans-serif;
+  font-size: 14px;
+}
 
-    .bar-fill {
-      height: 100%;
-      border-radius: 8px 0 0 8px;
-    }
+input {
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px;
+  background: #111;
+  border: none;
+  color: #fff;
+}
 
-    .bar-fill.day   { background: #38bdf8; }
-    .bar-fill.month { background: #9ae27b; }
-    .bar-fill.year  { background: #fb8b5e; }
-    .bar-fill.life  { background: #c084fc; }
+button {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 8px;
+  width: 100%;
+}
 
-    /* PERCENT NUMBER (VISIBLE FIX) */
-    .pct {
-      position: absolute;
-      top: -25px;
-      font-size: 13px;
-      white-space: nowrap;
-      transform: translateX(-50%);
-      z-index: 2;
-    }
-
-    .pct.day   { color: #38bdf8; }
-    .pct.month { color: #9ae27b; }
-    .pct.year  { color: #fb8b5e; }
-    .pct.life  { color: #c084fc; }
-
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      letter-spacing: 2px;
-      opacity: 0.6;
-      margin-top: 12px;
-    }
-
-    .footer {
-      position: fixed;                 /* FIXIERT am Bildschirm */
-      bottom: 0;
-      left: 0;
-      width: 100%;                     /* volle Breite */
-      padding: 0.5rem 0 calc(1rem + env(safe-area-inset-bottom));
-      text-align: center;
-
-      font-size: 0.65rem;
-      color: #888;
-      opacity: 0.6;
-
-      background: #262626;; /* leichtes Overlay, kann auf darkmode angepasst werden */
-      pointer-events: none;             /* weiterhin nicht klickbar */
-      
-      z-index: 1000;                     /* immer über allen Exercises */
-    }
-
-    .powered-items span + span::before {
-      content: "|";   /* Trennpunkt */
-      margin: 0 0.4rem;
-      color: #acacac;
-    }
-  </style>
+/* FOOTER */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.6rem 0 calc(0.8rem + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  color: #11DA2D;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.footer span + span::before { content: "|"; margin:0 0.4rem; }
+</style>
 </head>
-<body>
 
+<body>
 <div class="app">
+
   <div class="header">202026</div>
 
-  <div class="content">
-
-    <!-- DAY -->
-    <div class="section">
-      <div class="title day">DAY</div>
-      <div class="bar-wrap">
-        <div class="bar-fill day" id="dayBar"></div>
-        <div class="pct day" id="dayPct">0%</div>
-      </div>
-      <div class="meta">
-        <span id="dayName"></span>
-        <span id="timeNow"></span>
-      </div>
+  <!-- DAY -->
+  <div class="section">
+    <div class="title">Day</div>
+    <div class="bar-wrap" onclick="openTasks('day')">
+      <div class="bar-fill day" id="dayBar"></div>
+      <div class="pct" id="dayPct"></div>
     </div>
-
-    <!-- MONTH -->
-    <div class="section">
-      <div class="title month">MONTH</div>
-      <div class="bar-wrap">
-        <div class="bar-fill month" id="monthBar"></div>
-        <div class="pct month" id="monthPct">0%</div>
-      </div>
-      <div class="meta">
-        <span id="monthName"></span>
-        <span id="monthDay"></span>
-      </div>
+    <div class="meta">
+      <span id="dayName"></span>
+      <span id="timeNow"></span>
     </div>
-
-    <!-- YEAR -->
-    <div class="section">
-      <div class="title year">YEAR</div>
-      <div class="bar-wrap">
-        <div class="bar-fill year" id="yearBar"></div>
-        <div class="pct year" id="yearPct">0%</div>
-      </div>
-      <div class="meta">
-        <span id="yearNum"></span>
-        <span></span>
-      </div>
-    </div>
-
-    <!-- LIFE -->
-    <div class="section">
-      <div class="title life">LIFE</div>
-      <div class="bar-wrap">
-        <div class="bar-fill life" id="lifeBar"></div>
-        <div class="pct life" id="lifePct">0%</div>
-      </div>
-      <div class="meta">
-        <span id="ageExact"></span>
-        <span></span>
-      </div>
-    </div>
-
   </div>
 
-  <footer class="footer">
-    
-    <span class="powered-items">
-      <span>gpt-5.2</span>
-      <span>git</span>
-      <span>droam</span>
-    </span>
-  </footer>
+  <!-- MONTH -->
+  <div class="section">
+    <div class="title">Month</div>
+    <div class="bar-wrap" onclick="openTasks('month')">
+      <div class="bar-fill month" id="monthBar"></div>
+      <div class="pct" id="monthPct"></div>
+    </div>
+    <div class="meta">
+      <span id="monthName"></span>
+      <span id="monthDay"></span>
+    </div>
+  </div>
+
+  <!-- YEAR -->
+  <div class="section">
+    <div class="title">Year</div>
+    <div class="bar-wrap" onclick="openTasks('year')">
+      <div class="bar-fill year" id="yearBar"></div>
+      <div class="pct" id="yearPct"></div>
+    </div>
+    <div class="meta">
+      <span id="yearNum"></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- LIFE -->
+  <div class="section">
+    <div class="title">Life</div>
+    <div class="bar-wrap" onclick="openTasks('life')">
+      <div class="bar-fill life" id="lifeBar"></div>
+      <div class="pct" id="lifePct"></div>
+    </div>
+    <div class="meta">
+      <span id="ageExact"></span>
+      <span></span>
+    </div>
+  </div>
+
 </div>
 
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle"></h2>
+    <div id="taskList"></div>
+    <input id="newTask" placeholder="...">
+    <button onclick="addTask()">Add</button>
+    <button onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>GPT-5.2</span>
+  <span>Git</span>
+  <span>Droam</span>
+</footer>
+
 <script>
-  const BIRTHDATE = new Date("2006-06-19"); // CHANGE THIS
-  const LIFE_EXPECTANCY_YEARS = 90;
+/* ---------------- TIME ---------------- */
+const BIRTHDATE = new Date("2006-06-19");
+const LIFE_EXPECTANCY_YEARS = 80;
 
-  function update() {
-    const now = new Date();
+function setBar(id, value){
+  const pct = Math.min(Math.max(value,0),100);
+  document.getElementById(id+"Bar").style.width = pct+"%";
+  document.getElementById(id+"Pct").style.left = pct+"%";
+  document.getElementById(id+"Pct").textContent = "";
+}
 
-    // DAY
-    const startDay = new Date(now);
-    startDay.setHours(0,0,0,0);
-    setBar("day", (now - startDay) / 86400000 * 100);
+function updateTime(){
+  const now = new Date();
+  const dayStart = new Date(now); dayStart.setHours(0,0,0,0);
+  setBar("day",(now-dayStart)/86400000*100);
 
-    // MONTH
-    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    setBar("month", (now - startMonth) / (endMonth - startMonth) * 100);
+  const sm=new Date(now.getFullYear(),now.getMonth(),1);
+  const em=new Date(now.getFullYear(),now.getMonth()+1,1);
+  setBar("month",(now-sm)/(em-sm)*100);
 
-    // YEAR
-    const startYear = new Date(now.getFullYear(), 0, 1);
-    const endYear = new Date(now.getFullYear() + 1, 0, 1);
-    setBar("year", (now - startYear) / (endYear - startYear) * 100);
+  const sy=new Date(now.getFullYear(),0,1);
+  const ey=new Date(now.getFullYear()+1,0,1);
+  setBar("year",(now-sy)/(ey-sy)*100);
 
-    // LIFE %
-    const lifeMs = LIFE_EXPECTANCY_YEARS * 365.2422 * 86400000;
-    setBar("life", (now - BIRTHDATE) / lifeMs * 100);
+  const lifeMs=LIFE_EXPECTANCY_YEARS*365.2422*86400000;
+  setBar("life",(now-BIRTHDATE)/lifeMs*100);
 
-    // META TEXT
-    document.getElementById("dayName").textContent =
-      now.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+  document.getElementById("dayName").textContent=now.toLocaleDateString(undefined,{weekday:"long"});
+  document.getElementById("timeNow").textContent=now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  document.getElementById("monthName").textContent=now.toLocaleDateString(undefined,{month:"long"});
+  document.getElementById("monthDay").textContent=now.getDate();
+  document.getElementById("yearNum").textContent=now.getFullYear();
+  document.getElementById("ageExact").textContent=getExactAge(BIRTHDATE,now);
+}
 
-    document.getElementById("timeNow").textContent =
-      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+function getExactAge(birth,now){
+  let y=now.getFullYear()-birth.getFullYear();
+  let m=now.getMonth()-birth.getMonth();
+  let d=now.getDate()-birth.getDate();
+  if(d<0){ m--; d+=new Date(now.getFullYear(),now.getMonth(),0).getDate(); }
+  if(m<0){ y--; m+=12; }
+  return `${y}Y ${m}M ${d}D`;
+}
 
-    document.getElementById("monthName").textContent =
-      now.toLocaleDateString(undefined, { month: "long" }).toUpperCase();
+/* ---------------- TASK SYSTEM ---------------- */
+let currentType=null;
+function getTasks(type){ return JSON.parse(localStorage.getItem(type+"_tasks")||"[]"); }
+function saveTasks(type,tasks){ localStorage.setItem(type+"_tasks",JSON.stringify(tasks)); }
 
-    document.getElementById("monthDay").textContent = now.getDate();
-    document.getElementById("yearNum").textContent = now.getFullYear();
-
-    document.getElementById("ageExact").textContent = getExactAge(BIRTHDATE, now);
+(function dailyReset(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem("day_last");
+  if(last!==today){
+    const tasks=getTasks("day").map(t=>({...t,done:false}));
+    saveTasks("day",tasks);
+    localStorage.setItem("day_last",today);
   }
+})();
 
-  function setBar(id, value) {
-    const pct = Math.min(Math.max(value, 0), 100);
-    const rounded = Math.round(pct);
+function openTasks(type){
+  currentType=type;
+  document.getElementById("modalTitle").textContent=type;
+  document.getElementById("modal").style.display="flex";
+  renderTasks();
+}
 
-    const bar = document.getElementById(id + "Bar");
-    const text = document.getElementById(id + "Pct");
+function closeModal(){ document.getElementById("modal").style.display="none"; }
 
-    bar.style.width = pct + "%";
-    text.style.left = pct + "%";
-    text.textContent = rounded + "%";
-  }
+function renderTasks(){
+  const list=document.getElementById("taskList");
+  list.innerHTML="";
+  getTasks(currentType).forEach((task,i)=>{
+    const div=document.createElement("div");
+    div.className="task"+(task.done?" done":"");
+    div.innerHTML=`${task.text}<span class="task-actions" onclick="deleteTask(${i})">✕</span>`;
+    div.onclick=()=>toggleTask(i);
+    list.appendChild(div);
+  });
+}
 
-  function getExactAge(birth, now) {
-    let years = now.getFullYear() - birth.getFullYear();
-    let months = now.getMonth() - birth.getMonth();
-    let days = now.getDate() - birth.getDate();
+function addTask(){
+  const input=document.getElementById("newTask");
+  if(!input.value.trim()) return;
+  const tasks=getTasks(currentType);
+  tasks.push({text:input.value,done:false});
+  saveTasks(currentType,tasks);
+  input.value="";
+  renderTasks();
+}
 
-    if (days < 0) {
-      months--;
-      const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      days += prevMonth.getDate();
-    }
+function toggleTask(i){
+  const tasks=getTasks(currentType);
+  tasks[i].done=!tasks[i].done;
+  saveTasks(currentType,tasks);
+  renderTasks();
+}
 
-    if (months < 0) {
-      years--;
-      months += 12;
-    }
+function deleteTask(i){
+  const tasks=getTasks(currentType);
+  tasks.splice(i,1);
+  saveTasks(currentType,tasks);
+  renderTasks();
+}
 
-    return `${years}Y ${months}M ${days}D`;
-  }
-
-  update();
-  setInterval(update, 60000);
+/* INIT */
+updateTime();
+setInterval(updateTime,60000);
 </script>
-
 </body>
 </html>
