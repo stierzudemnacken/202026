@@ -56,7 +56,7 @@ body::before {
 
 .app {
   min-height: 100vh;
-  padding: 64px 42px 120px;
+  padding: 80px 42px 120px;
 }
 
 /* HEADER */
@@ -162,7 +162,7 @@ button {
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 0.6rem 0 calc(0.2rem + env(safe-area-inset-bottom));
+  padding: 0.6rem 0 calc(0.1rem + env(safe-area-inset-bottom));
   text-align: center;
   font-size: 0.6rem;
   letter-spacing: 1.5px;
@@ -178,6 +178,23 @@ button {
 <div class="app">
 
   <div class="header">202026</div>
+
+  <div id="punishmentNote" style="
+    text-align:center; 
+    font-size:48px; 
+    color:red; 
+    font-weight:bold;
+    display:none;
+    animation: blink 1s infinite;
+  ">!</div>
+  
+  
+  <style>
+  @keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0; }
+  }
+  </style>
 
   <!-- DAY -->
   <div class="section">
@@ -262,10 +279,26 @@ function setBar(id, value){
   document.getElementById(id+"Pct").textContent = "";
 }
 
+
+
 function updateTime(){
   const now = new Date();
-  const dayStart = new Date(now); dayStart.setHours(0,0,0,0);
-  setBar("day",(now-dayStart)/86400000*100);
+  let dayStart = new Date(now);
+  let dayEnd = new Date(now);
+
+  dayStart.setHours(5,0,0,0);
+  dayEnd.setHours(5,0,0,0);
+
+  if(now < dayStart){
+    // before 5AM → day started yesterday
+    dayStart.setDate(dayStart.getDate() - 1);
+  } else {
+    // after 5AM → day ends tomorrow
+    dayEnd.setDate(dayEnd.getDate() + 1);
+  }
+
+  const dayProgress = (now - dayStart) / (dayEnd - dayStart) * 100; // convert to percent
+  setBar("day", Math.min(Math.max(dayProgress, 0), 100));
 
   const sm=new Date(now.getFullYear(),now.getMonth(),1);
   const em=new Date(now.getFullYear(),now.getMonth()+1,1);
@@ -284,6 +317,13 @@ function updateTime(){
   document.getElementById("monthDay").textContent=now.getDate();
   document.getElementById("yearNum").textContent=now.getFullYear();
   document.getElementById("ageExact").textContent=getExactAge(BIRTHDATE,now);
+
+  const note = document.getElementById("punishmentNote");
+  if(localStorage.getItem("punishment_today") === "true"){
+    note.style.display = "block";
+  } else {
+    note.style.display = "none";
+  }
 }
 
 function getExactAge(birth,now){
@@ -301,12 +341,28 @@ function getTasks(type){ return JSON.parse(localStorage.getItem(type+"_tasks")||
 function saveTasks(type,tasks){ localStorage.setItem(type+"_tasks",JSON.stringify(tasks)); }
 
 (function dailyReset(){
-  const today=new Date().toDateString();
-  const last=localStorage.getItem("day_last");
-  if(last!==today){
-    const tasks=getTasks("day").map(t=>({...t,done:false}));
-    saveTasks("day",tasks);
-    localStorage.setItem("day_last",today);
+  const now = new Date();
+
+  // Determine current "day" based on 5 AM
+  let dayStart = new Date(now);
+  dayStart.setHours(5,0,0,0);
+  if(now < dayStart) dayStart.setDate(dayStart.getDate() - 1);
+
+  const todayStr = dayStart.toDateString();
+  const last = localStorage.getItem("day_last");
+
+  if(last !== todayStr){
+    const tasks = getTasks("day");
+    const failed = tasks.some(t => !t.done);
+
+    // Set punishment flag if yesterday failed
+    localStorage.setItem("punishment_today", failed ? "true" : "false");
+
+    // Reset daily tasks
+    const resetTasks = tasks.map(t => ({...t, done:false}));
+    saveTasks("day", resetTasks);
+
+    localStorage.setItem("day_last", todayStr);
   }
 })();
 
